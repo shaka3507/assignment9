@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script><title>Shaka C - Wordle Redux</title>
+<style type="text/css">
+	body {
+		font-family: Arial;
+	}
+	.gameboard {
+		text-align: center;
+		button {
+			all: unset;
+			background-color: lightgrey;
+			color: black;
+			width: 36px;
+			height: 50px;
+			margin: 2px 4px;
+			font-size: 18px;
+			border-radius: 4px;
+			font-weight: 700;
+		}
+
+		button.action-key {
+			font-size: 12px;
+			width: 60px;
+		}
+	}
+
+	.guesses {
+		display: inline-block;	
+	}
+
+	.guess-row {
+		display: flex;
+		text-align: center;
+		margin: 20px 0;
+	}
+
+	.guess-letter {
+		margin: 4px;
+		height: 60px;
+		width: 60px;
+		font-size: 32px;
+		line-height: 60px;
+		font-weight: 700;
+		background-color: grey;
+	}
+
+	.blank {
+		margin: 4px;
+		height: 58px;
+		width: 58px;
+		font-size: 32px;
+		line-height: 52px;
+		font-weight: 700;
+		border: 1px solid grey;
+	}
+
+	.correct {
+		background-color: #538d4e;
+		color: white;
+	}
+
+	.misplaced {
+		background-color: #b59f3b;
+		color: white;
+	}
+
+	.wrong {
+		background-color: darkgrey;
+		color: white;
+	}
+	
+</style>
+</head>
+
+<body>
+	<div id="main"></div>
+<script>
+const blank = "-----"
+const answer = "moody"
+const guesses = ["might", "flood", "stray", blank, blank]
+// 1 representing enter and 2 representing delete and 8 representing break line
+const keyboardKeys = "qwertyuiop8asdfghjkl81zxcvbnm2".split("")
+
+
+const getKeyClass = (letter, correct, hasLetter, className) => {
+	if(correct) {
+		return `correct ${className}`
+	} else if(hasLetter && !correct) {
+		return `misplaced ${className}`
+	} else {
+		return `wrong ${className}`
+	}
+}
+
+const createKeyboard = () => {
+  return React.createElement(
+    'div',
+    { className: 'keyboard' },
+    keyboardKeys.map((key, idx) => {
+			console.log("correct", key)
+    	// break line so create new line in board
+    	if(key === "8") {
+    		return React.createElement("br", {key: `break-${idx}`}, null)
+    	// 1 to have the key say "enter"
+    	} else if (key === "1") {
+    		return React.createElement("button", {className: "action-key", key: `enter-${idx}`}, "ENTER")
+    	// 2 to have the key say "del"
+    	} else if (key === "2") {
+    		// todo: update to del ascii
+			return React.createElement("button", {className: "action-key", key: `enter-${idx}`}, "DEL")
+		// all other keys
+    	} else {
+    		return React.createElement("button", {key: `key-${idx}`, className: "key"}, key.toUpperCase())
+    	}
+    })
+  )
+}
+
+// reusable function to create header elements
+const createTitle = (text, headerTag) => {
+	return React.createElement(headerTag, {className:"title"}, text)
+}
+
+const createGuessBoard = () => {
+	return React.createElement("div", {className: "guesses"}, guesses.map((guess, idx) => {
+		console.log("guess", guess)
+		const guessLetters = guess.split("")
+		return React.createElement("div", {className: "guess-row", key: idx}, guessLetters.map((letter, i) => {
+			const correct = letter === answer[i]
+			const hasLetter = answer.split("").includes(letter)
+			const isBlank = letter === '-'
+			const finalClass = !isBlank ? getKeyClass(letter, correct, hasLetter, "guess-letter") : "blank"
+			const displayLetter = !isBlank ? letter.toUpperCase() : null
+			return React.createElement("div", {className: finalClass, key: i}, displayLetter)
+		}))
+	}))
+}
+
+
+
+const keyboardComponent = createKeyboard()
+const titleComponent = createTitle("WORDLE", "h1")
+const guessesComponent = createGuessBoard()
+
+const renderGame = () => {
+	return React.createElement("div", {className: "gameboard"}, 
+			titleComponent,
+			guessesComponent,
+			keyboardComponent,
+		)
+}
+
+const game = renderGame()
+
+
+
+ReactDOM.render(game, main);	
+</script>	
+</body>
+</html>
+	
