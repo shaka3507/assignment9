@@ -10,7 +10,6 @@
 	}
 	.gameboard {
 		text-align: center;
-		font-family: Arial;
 		button {
 			all: unset;
 			background-color: lightgrey;
@@ -60,18 +59,18 @@
 	}
 
 	.correct {
-		background-color: #538d4e;
-		color: white;
+		background-color: #538d4e !important;
+		color: white !important;
 	}
 
 	.misplaced {
-		background-color: #b59f3b;
-		color: white;
+		background-color: #b59f3b !important;
+		color: white !important;
 	}
 
 	.wrong {
-		background-color: darkgrey;
-		color: white;
+		background-color: darkgrey !important;
+		color: white !important;
 	}
 	
 </style>
@@ -97,12 +96,36 @@ const getKeyClass = (letter, correct, hasLetter, className) => {
 	}
 }
 
+const evalGuesses = () => {
+	// evaluates and returns object of keys with strings of correct, misplaced and wrong letters
+	let correctLetters = ''
+	let misplacedLetters = ''
+	let wrongLetters = ''
+	for(let i = 0; i < 3; i++) {
+		const guess = guesses[i]
+		const arrGuess = guess.split("")
+		arrGuess.map((letter, idx) => {
+			if(arrGuess[idx] === answer[idx]) {
+				correctLetters += arrGuess[idx]
+			} else if(answer.indexOf(arrGuess[idx]) > -1) {
+				misplacedLetters += arrGuess[idx]
+			} else {
+				wrongLetters += arrGuess[idx]
+			}
+		})
+	}
+	return {
+		correctLetters, misplacedLetters, wrongLetters
+	}
+}
+
 const createKeyboard = () => {
+	const { correctLetters, misplacedLetters, wrongLetters } = evalGuesses()
   return React.createElement(
     'div',
     { className: 'keyboard' },
     keyboardKeys.map((key, idx) => {
-			console.log("correct", key)
+			// const evaluationClass = getEval(key, idx)
     	// break line so create new line in board
     	if(key === "8") {
     		return React.createElement("br", {key: `break-${idx}`}, null)
@@ -115,7 +138,10 @@ const createKeyboard = () => {
 			return React.createElement("button", {className: "action-key", key: `enter-${idx}`}, "DEL")
 		// all other keys
     	} else {
-    		return React.createElement("button", {key: `key-${idx}`, className: "key"}, key.toUpperCase())
+    		// ternary with multiple conditions 
+    		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator#conditional_chains
+    		const evalClassName = correctLetters.indexOf(key) > -1 ? 'correct' : misplacedLetters.indexOf(key) > -1 ? 'misplaced' : wrongLetters.indexOf(key) > -1 ? 'wrong' : ''
+    		return React.createElement("button", {key: `key-${idx}`, className: `key ${evalClassName}`}, key.toUpperCase())
     	}
     })
   )
@@ -128,7 +154,6 @@ const createTitle = (text, headerTag) => {
 
 const createGuessBoard = () => {
 	return React.createElement("div", {className: "guesses"}, guesses.map((guess, idx) => {
-		console.log("guess", guess)
 		const guessLetters = guess.split("")
 		return React.createElement("div", {className: "guess-row", key: idx}, guessLetters.map((letter, i) => {
 			const correct = letter === answer[i]
@@ -163,4 +188,3 @@ ReactDOM.render(game, main);
 </script>	
 </body>
 </html>
-	
