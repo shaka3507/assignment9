@@ -69,7 +69,7 @@
 	}
 
 	.wrong {
-		background-color: darkgrey !important;
+		background-color: #767676 !important;
 		color: white !important;
 	}
 	
@@ -86,6 +86,7 @@ const guesses = ["might", "flood", "stray", blank, blank]
 const keyboardKeys = "qwertyuiop8asdfghjkl81zxcvbnm2".split("")
 
 
+// helper function
 const getKeyClass = (letter, correct, hasLetter, className) => {
 	if(correct) {
 		return `correct ${className}`
@@ -96,6 +97,7 @@ const getKeyClass = (letter, correct, hasLetter, className) => {
 	}
 }
 
+// function for evaluation guesses
 const evalGuesses = () => {
 	// evaluates and returns object of keys with strings of correct, misplaced and wrong letters
 	let correctLetters = ''
@@ -119,7 +121,14 @@ const evalGuesses = () => {
 	}
 }
 
-const createKeyboard = () => {
+
+function Button(props) {
+	const { key, displayText, className = 'action-key' } = props
+	return React.createElement("button", {className, key }, displayText)
+}
+
+
+function Keyboard() {
 	const { correctLetters, misplacedLetters, wrongLetters } = evalGuesses()
   return React.createElement(
     'div',
@@ -131,28 +140,29 @@ const createKeyboard = () => {
     		return React.createElement("br", {key: `break-${idx}`}, null)
     	// 1 to have the key say "enter"
     	} else if (key === "1") {
-    		return React.createElement("button", {className: "action-key", key: `enter-${idx}`}, "ENTER")
+    		return Button({key: `enter-${idx}`, displayText:"ENTER"})
     	// 2 to have the key say "del"
     	} else if (key === "2") {
     		// todo: update to del ascii
-			return React.createElement("button", {className: "action-key", key: `enter-${idx}`}, "DEL")
+    		return Button({key: `enter-${idx}`, displayText: "DEL"})
 		// all other keys
     	} else {
     		// ternary with multiple conditions 
     		// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Conditional_operator#conditional_chains
     		const evalClassName = correctLetters.indexOf(key) > -1 ? 'correct' : misplacedLetters.indexOf(key) > -1 ? 'misplaced' : wrongLetters.indexOf(key) > -1 ? 'wrong' : ''
-    		return React.createElement("button", {key: `key-${idx}`, className: `key ${evalClassName}`}, key.toUpperCase())
+    		return Button({ key: `key-${idx}`, className: `key ${evalClassName}`, displayText: key.toUpperCase()})
     	}
     })
   )
 }
 
 // reusable function to create header elements
-const createTitle = (text, headerTag) => {
+function Title(props){
+	const {text, headerTag} = props
 	return React.createElement(headerTag, {className:"title"}, text)
 }
 
-const createGuessBoard = () => {
+function GuessBoard(){
 	return React.createElement("div", {className: "guesses"}, guesses.map((guess, idx) => {
 		const guessLetters = guess.split("")
 		return React.createElement("div", {className: "guess-row", key: idx}, guessLetters.map((letter, i) => {
@@ -166,21 +176,15 @@ const createGuessBoard = () => {
 	}))
 }
 
-
-
-const keyboardComponent = createKeyboard()
-const titleComponent = createTitle("WORDLE", "h1")
-const guessesComponent = createGuessBoard()
-
-const renderGame = () => {
+function GameBoard(){
 	return React.createElement("div", {className: "gameboard"}, 
-			titleComponent,
-			guessesComponent,
-			keyboardComponent,
+			Title({ text: "WORDLE", headerTag: "h1" }),
+			GuessBoard(),
+			Keyboard(),
 		)
 }
 
-const game = renderGame()
+const game = GameBoard()
 
 
 
@@ -188,3 +192,4 @@ ReactDOM.render(game, main);
 </script>	
 </body>
 </html>
+	
